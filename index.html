@@ -1,40 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-  <link rel="stylesheet" href="http://openlayers.org/en/v3.11.0/css/ol.css" type="text/css">
-  <script src="http://openlayers.org/en/v3.11.0/build/ol.js"></script>
-  <title>Suchbare Karte</title>
+<title>Kartensuche</title>
+<link rel="stylesheet" href="http://openlayers.org/en/v3.11.0/css/ol.css" type="text/css">
+<script src="http://openlayers.org/en/v3.11.0/build/ol.js"></script>
+
 </head>
 <body>
-  <h2>Suchbare Karte</h2>
-  <form id = "searchform">
-      <input name="search" input type="text" placeholder="Search, e.g. 'Vienna', 'Karlsplatz 13, Wien'" size="100">
-      <input type="submit" value="search"
-    </from>
-  <div id="map"></div>
+<form id="searchform">
+  <input name="search" size="80" type="text" placeholder="Search, e.g. 'Vienna', 'Karlsplatz 13, Wien'">
+  <input type="submit" value="Search">
+</form>
+<button id="relocate">Back to my Location</button>
 
-  <script>
-  var map = new ol.Map({
-    layers: [
-      new ol.layer.Tile({
-        source: new ol.source.OSM()
-      })
-    ],
-    controls: ol.control.defaults({
-      attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
-        collapsible: false
-      })
-    }),
-    target: 'map',
-    view: new ol.View({
-      center: [0, 0],
-      zoom: 13
+
+
+
+<div id="map" class="map"></div>
+<script>
+var map = new ol.Map({
+  layers: [
+    new ol.layer.Tile({
+      source: new ol.source.OSM()
     })
-  });
+  ],
+  controls: ol.control.defaults({
+    attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+      collapsible: false
+    })
+  }),
+  target: 'map',
+  view: new ol.View({
+    center: [0, 0],
+    zoom: 15
+  })
+});
 
-  var geolocation = new ol.Geolocation({
+var geolocation = new ol.Geolocation({
   projection: map.getView().getProjection(),
   tracking: true
 });
@@ -42,31 +44,42 @@ geolocation.once('change:position', function(evt) {
   map.getView().setCenter(geolocation.getPosition());
 });
 
-var form = document.getElementById("searchform");
+var form = document.getElementById('searchform');
 form.onsubmit = function(evt) {
   evt.preventDefault();
   var q = form.search.value;
-  var url = 'http://nominatin.openstreetmap.org/search?format=json&q=' + q;
+  var url = 'http://nominatim.openstreetmap.org/search?format=json&q=' + q;
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
-  xhr.onload = function(){
+  xhr.open('GET', url);
+  xhr.onload = function() {
     var result = JSON.parse(xhr.responseText);
     if (result.length > 0) {
       var first = result[0];
       form.search.value = first.display_name;
-      map.getView().setCEnter(ol.proj.fromlonlat([
+      map.getView().setCenter(ol.proj.fromLonLat([
         parseFloat(first.lon),
         parseFloat(first.lat)
-      ]))
+      ]));
     }
   };
   xhr.send();
 };
 
+var button =document.getElementById('relocate');
+button.addEventListener ('click', relocatepos);
+function relocatepos() {
+  var geolocation2 = new ol.Geolocation({
+    projection: map.getView().getProjection(),
+    tracking: true
+  });
+  geolocation.once('change:position', function(evt) {
+    map.getView().setCenter(geolocation.getPosition());
+  });
+}
 
-  </script>
-  </body>
-  </html>
-  <script src="index.js" charset="utf-8"></script>
+
+
+
+</script>
 </body>
 </html>
