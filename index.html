@@ -18,23 +18,34 @@
 
 <div id="map" class="map"></div>
 <script>
+var marker = new ol.Feature();
 var map = new ol.Map({
-  layers: [
-    new ol.layer.Tile({
-      source: new ol.source.OSM()
-    })
-  ],
-  controls: ol.control.defaults({
-    attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
-      collapsible: false
-    })
-  }),
   target: 'map',
-  view: new ol.View({
-    center: [0, 0],
-    zoom: 15
-  })
-});
+  layers: [
+      new ol.layer.Tile({
+      source: new ol.source.OSM()
+      }),
+      new ol.layer.Vector({
+    	source: new ol.source.Vector({
+    	features: [marker]
+    	}),
+
+      style: new ol.style.Style ({
+      image: new ol.style.Icon(({
+          anchor: [0.5, 46],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'pixels',
+      src: 'http://student.ifip.tuwien.ac.at/geoweb/2015/g07/Ue5/map_marker_blue.png'
+      }))
+      })
+      })
+        ],
+
+        view: new ol.View({
+     center: ol.proj.transform([16.373, 48.208], 'EPSG:4326', 'EPSG:3857'), zoom: 15,
+     })
+     });
+
 
 var geolocation = new ol.Geolocation({
   projection: map.getView().getProjection(),
@@ -67,17 +78,15 @@ form.onsubmit = function(evt) {
 
 var button =document.getElementById('relocate');
 button.addEventListener ('click', relocatepos);
-function relocatepos() {
-  var geolocation2 = new ol.Geolocation({
-    projection: map.getView().getProjection(),
-    tracking: true
-  });
-  geolocation.once('change:position', function(evt) {
-    map.getView().setCenter(geolocation.getPosition());
-  });
-}
-
-
+          function relocatepos() {
+            var geolocation2 = new ol.Geolocation({
+              projection: map.getView().getProjection(),
+              tracking: true
+              });
+            geolocation.once('change:position', function(evt) {
+            map.getView().setCenter(geolocation.getPosition());
+            });
+      }
 
 
 </script>
