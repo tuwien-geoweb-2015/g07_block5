@@ -32,9 +32,11 @@ var map = new ol.Map({
 
       style: new ol.style.Style ({
       image: new ol.style.Icon(({
-          anchor: [0.5, 46],
+          anchor: [0.5, 0.9],
+          scale: 0.15,
           anchorXUnits: 'fraction',
-          anchorYUnits: 'pixels',
+          anchorYUnits: 'fraction',
+          opacity: 0.75,
       src: 'http://student.ifip.tuwien.ac.at/geoweb/2015/g07/Ue5/map_marker_blue.png'
       }))
       })
@@ -53,7 +55,8 @@ var geolocation = new ol.Geolocation({
 });
 geolocation.once('change:position', function(evt) {
   map.getView().setCenter(geolocation.getPosition());
-});
+  marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
+  });
 
 var form = document.getElementById('searchform');
 form.onsubmit = function(evt) {
@@ -70,7 +73,9 @@ form.onsubmit = function(evt) {
       map.getView().setCenter(ol.proj.fromLonLat([
         parseFloat(first.lon),
         parseFloat(first.lat)
+
       ]));
+      marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
     }
   };
   xhr.send();
@@ -85,6 +90,7 @@ button.addEventListener ('click', relocatepos);
               });
             geolocation.once('change:position', function(evt) {
             map.getView().setCenter(geolocation.getPosition());
+            marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
             });
       }
 
